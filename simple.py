@@ -23,4 +23,4 @@ with tf.Session() as sess:
     sess.run(init_op)
     # compute output of the graph
     a_out = sess.run(a, feed_dict={b: np.arange(0, 10)[:, np.newaxis]})
-    print('Variable a is {}'.format(a_out))
+    print(f'Variable a is {a_out}')

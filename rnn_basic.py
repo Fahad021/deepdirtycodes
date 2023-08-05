@@ -19,7 +19,7 @@ def generateData():
     """
     x = np.array(np.random.choice(2, total_series_length, p=[0.5, 0.5]))
     y = np.roll(x, echo_step)
-    y[0:echo_step] = 0
+    y[:echo_step] = 0
 
     x = x.reshape((batch_size, -1))
     y = y.reshape((batch_size, -1))

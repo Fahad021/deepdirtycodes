@@ -40,8 +40,7 @@ class Conv1D(tf.layers.Conv1D):
         )
 
     def call(self, inputs):
-        padding = (self.kernel_size[0] - 1) * self.dilation_rate[0]
-        if padding:
+        if padding := (self.kernel_size[0] - 1) * self.dilation_rate[0]:
             inputs = tf.pad(inputs, tf.constant(
                 [(0, 0,), (1, 0), (0, 0)]) * padding)
         return super(Conv1D, self).call(inputs)
@@ -98,20 +97,21 @@ class TemporalConvNet(tf.layers.Layer):
             name=name, **kwargs
         )
         self.layers = []
-        for i in range(n_layers):
-            self.layers.append(
-                DCNBlock(n_filters=n_filters,
-                         kernel_size=kernel_size,
-                         strides=1,
-                         dilation_rate=2 ** i,
-                         first_layer=(i == 0),
-                         name='layer_{}'.format(i))
+        self.layers.extend(
+            DCNBlock(
+                n_filters=n_filters,
+                kernel_size=kernel_size,
+                strides=1,
+                dilation_rate=2**i,
+                first_layer=(i == 0),
+                name=f'layer_{i}',
             )
+            for i in range(n_layers)
+        )
         self.dense = Conv1D(1, 1, name='forecast')
 
     def call(self, inputs, training=True):
         outputs = inputs
         for layer in self.layers:
             outputs = layer(outputs, training=training)
-        network_out = self.dense(outputs)
-        return network_out
+        return self.dense(outputs)

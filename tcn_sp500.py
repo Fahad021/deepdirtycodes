@@ -71,10 +71,8 @@ with tf.Graph().as_default() as g:
 
 with tf.Session(graph=g) as sess:
     file_writer = tf.summary.FileWriter(
-        '{}/logs/tcn/{}l_{}k_{}f'.format(path,
-                                         n_layers,
-                                         kernel_size, n_filters),
-        sess.graph)
+        f'{path}/logs/tcn/{n_layers}l_{kernel_size}k_{n_filters}f', sess.graph
+    )
     # Run the initializer
     sess.run(init)
 

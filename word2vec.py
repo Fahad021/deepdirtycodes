@@ -19,17 +19,16 @@ url = 'http://mattmahoney.net/dc/'
 
 def maybe_download(filename, expected_bytes):
     """Download a file if not present, and make sure it's the right size."""
-    if not os.path.exists('data/' + filename):
-        with urllib.request.urlopen(url + filename) as r, open(
-                'data/' + filename, 'wb') as f:
+    if not os.path.exists(f'data/{filename}'):
+        with (urllib.request.urlopen(url + filename) as r, open(f'data/{filename}', 'wb') as f):
             data = r.read()
             f.write(data)
-    statinfo = os.stat('data/' + filename)
+    statinfo = os.stat(f'data/{filename}')
     if statinfo.st_size == expected_bytes:
         print('Found and verified', filename)
     else:
         print(statinfo.st_size)
-        raise Exception('Failed to verify ' + filename)
+        raise Exception(f'Failed to verify {filename}')
     return filename
 
 
@@ -44,7 +43,7 @@ def read_data(filename):
     return data
 
 
-vocabulary = read_data('data/' + filename)
+vocabulary = read_data(f'data/{filename}')
 print('Data size', len(vocabulary))
 
 # Step 2: Build the dictionary and replace rare words with UNK token.
@@ -55,10 +54,10 @@ def build_dataset(words, n_words):
     """Process raw inputs into a dataset."""
     count = [['UNK', -1]]
     count.extend(collections.Counter(words).most_common(n_words - 1))
-    dictionary = dict()
+    dictionary = {}
     for word, _ in count:
         dictionary[word] = len(dictionary)
-        data = list()
+        data = []
         unk_count = 0
     for word in words:
         if word in dictionary:
@@ -235,14 +234,14 @@ def run(graph, num_steps):
             # (~20% slowdown if computed every 500 steps)
             if step % 10000 == 0:
                 sim = similarity.eval()
+                top_k = 8  # number of nearest neighbors
                 for i in range(valid_size):
                     valid_word = reverse_dictionary[valid_examples[i]]
-                    top_k = 8  # number of nearest neighbors
                     nearest = (-sim[i, :]).argsort()[1:top_k + 1]
-                    log_str = 'Nearest to %s:' % valid_word
+                    log_str = f'Nearest to {valid_word}:'
                     for k in range(top_k):
                         close_word = reverse_dictionary[nearest[k]]
-                        log_str = '%s %s,' % (log_str, close_word)
+                        log_str = f'{log_str} {close_word},'
                     print(log_str)
         final_embeddings = norm_embeddings.eval()
 
@@ -276,5 +275,4 @@ nce_start_time = dt.datetime.now()
 run(graph, num_steps)
 nce_end_time = dt.datetime.now()
 time_span = (nce_end_time - nce_start_time).total_seconds()
-print('NCE method took ' + str(time_span) + ' seconds to run' +
-      str(num_steps) + 'iterations')
+print(f'NCE method took {str(time_span)} seconds to run{num_steps}iterations')

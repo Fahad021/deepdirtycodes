@@ -49,10 +49,10 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 with tf.Session() as sess:
     # intializae variables
     sess.run(init_op)
-    total_batch = int(len(mnist.train.labels) / batch_size)
+    total_batch = len(mnist.train.labels) // batch_size
     for epoch in range(epochs):
         avg_cost = 0
-        for i in range(total_batch):
+        for _ in range(total_batch):
             batch_x, batch_y = mnist.train.next_batch(batch_size=batch_size)
             _, c = sess.run([optimizer, cross_entropy],
                             feed_dict={x: batch_x, y: batch_y})

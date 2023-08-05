@@ -22,9 +22,10 @@ def create_new_conv_layer(input_data, num_input_channels, num_filters,
                        num_input_channels, num_filters]
 
     # initialise weights and bias
-    weights = tf.Variable(tf.truncated_normal(conv_filt_shape, stddev=0.03),
-                          name=name+'_W')
-    bias = tf.Variable(tf.truncated_normal([num_filters]), name=name+'_b')
+    weights = tf.Variable(
+        tf.truncated_normal(conv_filt_shape, stddev=0.03), name=f'{name}_W'
+    )
+    bias = tf.Variable(tf.truncated_normal([num_filters]), name=f'{name}_b')
 
     # setup the convolutional layer
     out_layer = tf.nn.conv2d(input_data, weights, [1, 1, 1, 1], padding='SAME')
@@ -83,7 +84,7 @@ with tf.Session() as sess:
     total_batch = int(len(mnist.train.labels) / batch_size)
     for epoch in range(epochs):
         avg_cost = 0
-        for i in range(total_batch):
+        for _ in range(total_batch):
             batch_x, batch_y = mnist.train.next_batch(batch_size=batch_size)
             _, c = sess.run([optimiser, cross_entropy],
                             feed_dict={x: batch_x, y: batch_y})

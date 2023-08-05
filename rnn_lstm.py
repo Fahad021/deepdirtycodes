@@ -20,7 +20,7 @@ def generateData():
     """
     x = np.array(np.random.choice(2, total_series_length, p=[0.5, 0.5]))
     y = np.roll(x, echo_step)
-    y[0:echo_step] = 0
+    y[:echo_step] = 0
 
     x = x.reshape((batch_size, -1))
     y = y.reshape((batch_size, -1))
@@ -42,9 +42,10 @@ init_state = tf.placeholder(
 # unstack init_state to a tuple of LSTMTuples
 state_per_layer_list = tf.unstack(init_state, axis=0)
 rnn_tuple_state = tuple(
-    [tf.contrib.rnn.LSTMStateTuple(state_per_layer_list[idx][0],
-                                   state_per_layer_list[idx][1])
-     for idx in range(num_layers)]
+    tf.contrib.rnn.LSTMStateTuple(
+        state_per_layer_list[idx][0], state_per_layer_list[idx][1]
+    )
+    for idx in range(num_layers)
 )
 
 # weights and biases
@@ -57,8 +58,10 @@ labels_series = tf.unstack(Y, axis=1)
 
 # Forward pass
 # cell = tf.contrib.rnn.BasicLSTMCell(state_size, state_is_tuple=True)
-cell_stack = [tf.contrib.rnn.BasicLSTMCell(
-    state_size, state_is_tuple=True) for i in range(num_layers)]
+cell_stack = [
+    tf.contrib.rnn.BasicLSTMCell(state_size, state_is_tuple=True)
+    for _ in range(num_layers)
+]
 cells = tf.contrib.rnn.MultiRNNCell(cell_stack, state_is_tuple=True)
 states_series, current_state = tf.contrib.rnn.static_rnn(
     cells, inputs_series, initial_state=rnn_tuple_state)
